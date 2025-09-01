@@ -1,0 +1,116 @@
+import java.util.*;
+
+class Edge implements Comparable<Edge> {
+    int src, dest, weight;
+
+    Edge(int s, int d, int w) {
+        src = s;
+        dest = d;
+        weight = w;
+    }
+
+    @Override
+    public int compareTo(Edge other) {
+        return this.weight - other.weight;
+    }
+}
+
+class DisjointSet {
+    int[] parent, rank;
+
+    DisjointSet(int n) {
+        parent = new int[n];
+        rank = new int[n];
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+            rank[i] = 0;
+        }
+    }
+
+    int find(int x) {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);
+        }
+        return parent[x];
+    }
+
+    void union(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+
+        if (rootX != rootY) {
+            if (rank[rootX] < rank[rootY]) {
+                parent[rootX] = rootY;
+            } else if (rank[rootX] > rank[rootY]) {
+                parent[rootY] = rootX;
+            } else {
+                parent[rootY] = rootX;
+                rank[rootX]++;
+            }
+        }
+    }
+}
+
+class GraphKruskal {
+    List<Edge> edges = new ArrayList<>();
+    int vertices;
+
+    GraphKruskal(int v) {
+        vertices = v;
+    }
+
+    public void addEdge(int u, int v, int w) {
+        edges.add(new Edge(u, v, w));
+    }
+
+    public void kruskalMST() {
+        Collections.sort(edges); 
+        DisjointSet ds = new DisjointSet(vertices);
+
+        int totalWeight = 0;
+        List<Edge> mst = new ArrayList<>();
+
+        for (Edge edge : edges) {
+            int srcParent = ds.find(edge.src);
+            int destParent = ds.find(edge.dest);
+
+            if (srcParent != destParent) { 
+                mst.add(edge);
+                totalWeight += edge.weight;
+                ds.union(srcParent, destParent);
+            }
+        }
+        
+        for (Edge e : mst) {
+            System.out.println(e.src + " -- " + e.dest + " == " + e.weight);
+        }
+        System.out.println("The Minimum Weight of the Graph: " + totalWeight);
+    }
+}
+
+public class KruskalsAlgorithm {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        int vertex = sc.nextInt();
+
+        GraphKruskal g = new GraphKruskal(vertex);
+
+
+        while (true) {
+            
+            int u = sc.nextInt();
+           
+            int v = sc.nextInt();
+           
+            int w = sc.nextInt();
+
+            if (u == -1 || v == -1 || w == -1) {
+                break;
+            }
+            g.addEdge(u, v, w);
+        }
+
+        g.kruskalMST();
+    }
+}
